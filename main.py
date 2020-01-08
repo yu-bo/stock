@@ -20,7 +20,7 @@ d={"ts_codeT":"S代码",
 "is_hs":"是否沪深港通标的，N否 H沪股通 S深股通",
 }
 
-print(d.keys().values)
+print(d.keys())
 print(d.values())
 data = pro.query('stock_basic', exchange='', list_status='L', fields=d.keys())
 print(data)
