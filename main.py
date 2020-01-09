@@ -47,7 +47,7 @@ with open("data/data.csv","w",newline="") as f:
         stock_list.append(row )
     file_writer.writerows(stock_list)
 
-1
+
 
 # with open("data/stock.csv","r") as f:
 #     file_reader = csv.reader(f)
