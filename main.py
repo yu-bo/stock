@@ -64,11 +64,30 @@ def get_info():
     data = pd.read_csv("data/data.csv", dtype=object)
     today= datetime.date.today().strftime("%Y%m%d")
     for row in data.values:
-        start_time =row[len(row)-1]
-        end_time =today
+        # start_time =row[len(row)-1]
+        # end_time =today
+        # code = row[0]
+        # df =pro.daily(ts_code=code, start_date=start_time, end_date=end_time)
+        # last =df.tail(1)["trade_date"].values[0]
+        # print(df)
+        get_daily_info(row)
+
+
+def get_daily_info(row):
+        start_time = row[len(row)-1]
+        end_time= datetime.date.today().strftime("%Y%m%d")
         code = row[0]
-        df =pro.daily(ts_code=code, start_date=start_time, end_date=end_time)
+        df= pd.DataFrame({})
+        while True:
+            df_t = pro.daily(ts_code=code, start_date=start_time, end_date=end_time)
+            
+            df.append(df_t)
+            end_time = df_t.tail(1)["trade_date"].values[0]
+            print(end_time + "/r/n")
+            if df_t.le
         print(df)
+            
+
 
 
 if __name__ == "__main__":
