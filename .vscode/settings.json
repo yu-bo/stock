@@ -1,3 +1,8 @@
 {
-    "python.pythonPath": "D:\\Miniconda3\\envs\\sabc\\python.exe"
+    "python.pythonPath": "D:\\Miniconda3\\envs\\sabc\\python.exe",
+    // "python.autoComplete.addBrackets": true,
+    // "python.autoComplete.extraPaths": [
+    //     "D:\\Anaconda3\\envs\\sabc",
+    //     "D:\\Anaconda3\\envs\\sabc\\Lib\\site-packages"
+    // ],
 }
