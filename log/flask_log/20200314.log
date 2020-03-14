@@ -1,0 +1,58 @@
+2020-03-14 12:23:17,214 - DEBUG - selector_events.py - __init__ - 58 - Using selector: SelectSelector
+2020-03-14 12:24:32,215 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getStockInfo (::1) 7.64ms
+2020-03-14 12:24:32,222 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getTestData (::1) 4.69ms
+2020-03-14 12:24:32,263 - INFO - wsgi.py - _log - 196 - 200 POST /getStockInfo (::1) 20.85ms
+2020-03-14 12:24:32,266 - ERROR - app.py - log_exception - 1891 - Exception on /getTestData [POST]
+Traceback (most recent call last):
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask\app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask\app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask_cors\extension.py", line 161, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask\app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask\_compat.py", line 39, in reraise
+    raise value
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask\app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\Miniconda3\envs\sabc\lib\site-packages\flask\app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "d:\JetBrains\Project\stock\server.py", line 75, in getTrainData
+    realData,predictData =trainning.testing(stock_info)
+  File "d:\JetBrains\Project\stock\trainning.py", line 95, in testing
+    test_x, scaler_x, test_y, scaler_y = prepare.getTestData(stockInfo)
+  File "d:\JetBrains\Project\stock\prepare.py", line 113, in getTestData
+    train_x, scaler_x, train_y, scaler_y =getTrainData(stockInfo)
+  File "d:\JetBrains\Project\stock\prepare.py", line 94, in getTrainData
+    symbol = stockInfo["symbol"]
+KeyError: 'symbol'
+2020-03-14 12:24:32,339 - ERROR - wsgi.py - _log - 196 - 500 POST /getTestData (::1) 73.59ms
+2020-03-14 12:24:32,347 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getList (::1) 4.59ms
+2020-03-14 12:24:32,428 - INFO - wsgi.py - _log - 196 - 200 GET /getList (::1) 69.06ms
+2020-03-14 12:24:40,488 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getList (::1) 1.99ms
+2020-03-14 12:24:40,530 - INFO - wsgi.py - _log - 196 - 200 GET /getList (::1) 36.19ms
+2020-03-14 12:24:51,769 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getStockInfo (::1) 2.58ms
+2020-03-14 12:24:51,853 - INFO - wsgi.py - _log - 196 - 200 POST /getStockInfo (::1) 82.54ms
+2020-03-14 12:24:51,859 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getTestData (::1) 2.98ms
+2020-03-14 12:25:15,451 - INFO - wsgi.py - _log - 196 - 200 POST /getTestData (::1) 23591.06ms
+2020-03-14 12:35:04,339 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getStockInfo (::1) 4.18ms
+2020-03-14 12:35:04,389 - INFO - wsgi.py - _log - 196 - 200 POST /getStockInfo (::1) 46.88ms
+2020-03-14 12:35:04,410 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getTestData (::1) 4.02ms
+2020-03-14 12:35:05,667 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.iter
+2020-03-14 12:35:05,672 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.beta_1
+2020-03-14 12:35:05,683 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.beta_2
+2020-03-14 12:35:05,688 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.decay
+2020-03-14 12:35:05,688 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.learning_rate
+2020-03-14 12:35:05,692 - WARNING - util.py - __del__ - 152 - A checkpoint was restored (e.g. tf.train.Checkpoint.restore or tf.keras.Model.load_weights) but not all checkpointed values were used. See above for specific issues. Use expect_partial() on the load status object, e.g. tf.train.Checkpoint.restore(...).expect_partial(), to silence these warnings, or use assert_consumed() to make the check explicit. See https://www.tensorflow.org/alpha/guide/checkpoints#loading_mechanics for details.
+2020-03-14 12:35:23,784 - INFO - wsgi.py - _log - 196 - 200 POST /getTestData (::1) 19371.83ms
+2020-03-14 12:35:42,988 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getStockInfo (::1) 3.77ms
+2020-03-14 12:35:43,051 - INFO - wsgi.py - _log - 196 - 200 POST /getStockInfo (::1) 61.34ms
+2020-03-14 12:35:43,058 - INFO - wsgi.py - _log - 196 - 200 OPTIONS /getTestData (::1) 1.03ms
+2020-03-14 12:35:49,455 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.iter
+2020-03-14 12:35:49,463 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.beta_1
+2020-03-14 12:35:49,480 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.beta_2
+2020-03-14 12:35:49,483 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.decay
+2020-03-14 12:35:49,484 - WARNING - util.py - __del__ - 144 - Unresolved object in checkpoint: (root).optimizer.learning_rate
+2020-03-14 12:35:49,486 - WARNING - util.py - __del__ - 152 - A checkpoint was restored (e.g. tf.train.Checkpoint.restore or tf.keras.Model.load_weights) but not all checkpointed values were used. See above for specific issues. Use expect_partial() on the load status object, e.g. tf.train.Checkpoint.restore(...).expect_partial(), to silence these warnings, or use assert_consumed() to make the check explicit. See https://www.tensorflow.org/alpha/guide/checkpoints#loading_mechanics for details.
+2020-03-14 12:35:58,205 - INFO - wsgi.py - _log - 196 - 200 POST /getTestData (::1) 15131.16ms
