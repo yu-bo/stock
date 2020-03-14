@@ -1,12 +1,13 @@
-import  tushare as ts
-import csv
+import tushare as ts
+print(ts.__version__)
+
 import time
 import datetime
-import os
 import numpy as np
 import pandas as pd
 from concurrent.futures import ProcessPoolExecutor,as_completed
 
+import  stock_sql
 
 ts.set_token("d1af48f518c17415b1b98b2ce84ab7b1a0025adfdde78e22513b31ec")
 pro = ts.pro_api()
@@ -61,6 +62,7 @@ def stock_record():
 def stock_data():
     #初始化跟新时间
     data= pd.read_csv("data/stock.csv",dtype=object)
+    # a 股票的全部信息 ，b 要去掉的几列
     a= list(d.values())
     b= ["TS代码","股票名称","上市日期","退市日期"]
     today =datetime.date.today().strftime("%Y%m%d")
@@ -68,7 +70,7 @@ def stock_data():
     header = [val for val in a if val not in b]
     print(header)
     data_1= data.drop(header,axis=1)
-    data_1.insert(loc=len(data_1.columns),column="跟新时间",value=today,allow_duplicates=False)
+    data_1.insert(loc=len(data_1.columns),column="更新时间",value=today,allow_duplicates=False)
     
     for row in data_1.values:
         row[4]=row[2]
@@ -76,77 +78,83 @@ def stock_data():
     data_1.to_csv("data/data.csv",header=True,encoding='utf-8',index=False)
 
 
-def get_info():
-    data = pd.read_csv("data/data.csv", dtype=object)
-    today= datetime.date.today().strftime("%Y%m%d")
-    headers = data.columns.values
+def dateRange(beginDate,endDate):
+    dates=[]
+    dt=datetime.datetime.strptime(beginDate,"%Y%m%d")
+    date=beginDate[:]
+    while date <= endDate:
+        dates.append(date)
+        dt=dt + datetime.timedelta(1)
+        date=dt.strftime("%Y%m%d")
+    return dates
 
-    list_n = []
-    list_s = arr_split(data.values, 500)
-    executor = ProcessPoolExecutor(max_workers=8)
-    
-    # all_task = [executor.submit(get_info_list, (list_a)) for list_a in list_s]
+def dailyInfoUpdate():
+    """
+    更新stock 每日信息
+    :return:
+    """
+    df =stock_sql.getTradeDateList()
+    #按照symbol 升级
+    # df.sort_values(by=["symbol"], inplace=True, ignore_index=True)
+    stock_list = np.array(df)
+
+    #多线程支持
+    # stock_split = stock_sql.arr_split( stock_list ,500)
+    # executor = ProcessPoolExecutor(max_workers=8)
+    # all_task = [executor.submit(updateDailyList, (list_a)) for list_a in stock_split]
     # for future in as_completed(all_task) :
-    #     list_tmp = future.result()
-    #     list_n +=list_tmp 
+    #     res = future.result()
 
-    for list_a in list_s:
-        list_tmp = get_info_list(list_a)
-        list_n += list_tmp
-    
-    data_n = pd.DataFrame(list_n)
-    data_n.columns = headers
-    data_n.to_csv("data/data.csv",header=True,encoding='utf-8',index=False)
-    #values_n = pd.concat(list_n,join="inner")
-    print(data_n)
+    updateDailyList(stock_list)
+    #print(stock_list)
 
-def get_info_list(arr):
-    row_list=[]
-    for row in arr:
-        time.sleep(0.5)
-        row_n= get_daily_info(row)
-        row_list.append(row_n)
-    return row_list
+def updateDailyList(stockList):
+    """
+    :param stockList:输入的股票列表包含 symbol name tscode  lastdate
+    :return:
+    """
+    today = datetime.date.today().strftime("%Y%m%d")
+    for item in stockList:
+       ## time.sleep(.3)
+        print(item)
+        data = getStockInfo(item[0],item[2],item[3],"20200312")
+        if  data is not None:
+            last =stockDateConcat(item[0],data)
+            stock_sql.updateTradeDate(item[0],last)
 
-def get_daily_info(row):
-        start_time = row[len(row)-1]
-        end_time= datetime.date.today().strftime("%Y%m%d")
-        df_list=[]
-        lenght=0
-        while True:
-            df_t = pro.daily(ts_code=row[0], start_date=start_time, end_date=end_time)
-            df_list.append(df_t)
-            mid_time = df_t.tail(1)["trade_date"].values[0]
-            lenght+= df_t.shape[0]
-            if mid_time == end_time:
-                print(row[0]+"：  end")
-                break
-            end_time = mid_time
-        data= pd.concat(df_list,join="inner")
-        row[len(row)-1]= datetime.date.today().strftime("%Y%m%d")
-        daily_store(data,row)
-        print(data.shape[0])
-        return row
-       
-def get_pre_info(row):
-    file_name = "".join(["data/info/",row[1].replace("*",""),"-",row[0],".csv"]) 
-    data= pd.read_csv(file_name)
-    return data
+def getStockInfo(symbol, ts_code, start_time,end_time):
+    df_list=[]
+    while start_time!= end_time:
+        df_t = pro.daily(ts_code=ts_code, start_date=start_time, end_date=end_time)
+        df_list.append(df_t)
+        end_time = df_t.tail(1)["trade_date"].values[0]
 
-def arr_split(arr,size):
-    s=[]
-    for i in range(0,int(len(arr))+1,size):
-        c=arr[i:i+size]
-        s.append(c)
-    return s
+    if len(df_list) != 0:
+        data = pd.concat(df_list, join="inner")
+    else:
+        data =None
 
-def daily_store(data,row):
-    file_name = "".join(["data/info/",row[1].replace("*",""),"-",row[0],".csv"])
-    data.to_csv(file_name,header=True,encoding='utf-8',index=False)
-    print(file_name)
-    pass 
+    return  data
+
+def stockDateConcat(symbol,data):
+    """
+    将stock 每日新增信息与原始信息合并保存
+    :param symbol:
+    :param data: 新增数据
+    :return:
+    """
+    path = stock_sql.getFilePath(symbol)
+    df=stock_sql.getStockData(path)
+    data.trade_date = data.trade_date.astype("int64")
+    #新数据放在前
+    data_n =pd.concat([data,df],join='inner', ignore_index=True)
+    # 1.数据去重
+    data_n.drop_duplicates(subset=["trade_date"], keep='first', inplace=True)
+    data_n.to_csv(path,header=True,encoding='utf-8',index=False)
+    return  data_n.head(1)["trade_date"].values[0]
+
 
 if __name__ == "__main__":
     #stock_record()
     #stock_data()
-    get_info()
+    dailyInfoUpdate()
