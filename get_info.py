@@ -9,7 +9,7 @@ from concurrent.futures import ProcessPoolExecutor,as_completed
 
 import  stock_sql
 
-ts.set_token("d1af48f518c17415b1b98b2ce84ab7b1a0025adfdde78e22513b31ec")
+ts.set_token("your_tocken")
 pro = ts.pro_api()
 
 d={"ts_code":"TS代码",
