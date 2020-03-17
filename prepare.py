@@ -266,7 +266,7 @@ def dataConcat(stock_list,only_untrain =False):
     data_x,data_y = np.concatenate(list_x,axis=0),np.concatenate(list_y,axis=0)
     return  data_x,data_y
 
-def dataGenerator(index = 0,only_untrain=False,batch_size =500):
+def dataGenerator(index = 0,only_untrain=False,batch_size =200):
     """
     数据生成器，返回x，y ，stocklist
     :param index:

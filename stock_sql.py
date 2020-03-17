@@ -120,17 +120,24 @@ def saveStockPath():
     df.to_sql(name="stock_path", con=conn, index=False, if_exists='replace')
     conn.close()
     print(df)
-    
+
+def initTrainDate():
+    """
+    初始化 训练日期
+    :param symbol:
+    :param date:
+    :return:
+    """
+    sqlStr = "UPDATE stock_date SET train_date = list_date"
+    with my_sql(DataBase) as c:
+        c.execute(sqlStr)
+
 def updateTradeDate(symbol,date):
     sqlStr = "UPDATE stock_date SET trade_date ='{}' WHERE symbol='{}'".format(date, symbol)
     with my_sql(DataBase) as c:
         c.execute(sqlStr)
 
 
-def updateTrainDate(symbol, date):
-    sqlStr = "UPDATE stock_date SET train_date ='{}' WHERE symbol='{}'".format(date, symbol)
-    with my_sql(DataBase) as c:
-        c.execute(sqlStr)
 
 
 def updateTrianList(stockList):
@@ -335,5 +342,5 @@ if __name__ == '__main__':
     # DataBaseInit()
     # getStockList()
     # saveStockPath()
-    saveStockDate()
+    initTrainDate()
     #getFilePath("000001")
