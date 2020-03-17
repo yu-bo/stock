@@ -3,3 +3,4 @@
 模型不是很准确,后面边学习边优化。
 
 
+![](https://github.com/yu-bo/stock/blob/master/20200314.png)
