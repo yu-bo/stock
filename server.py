@@ -8,6 +8,7 @@ from tornado.httpserver import HTTPServer
 import prepare
 import stock_sql
 import trainning
+import  evaluate
 from flask_cors import *
 import json
 
@@ -82,6 +83,35 @@ def getTrainData():
     }
 
     return res
+@app.route('/getRate',methods=["POST"])
+def getRate():
+    data = request.json
+    stock_info = data["stock"]
+    realData, predictData = trainning.testing(stock_info)
+    res={
+        "explained" :evaluate.explained_variance_score(realData,predictData),
+        "mean":evaluate.mean_squared_error(realData,predictData),
+        "r2": evaluate.r2_socre(realData,predictData),
+    }
+    return  res
+
+@app.route('/getUpDown',methods=["POST"])
+def getUpDown():
+    data = request.json
+    stock_info = data["stock"]
+    realData, predictData = trainning.testing(stock_info)
+    close = prepare.getTrianColnum(stock_info)
+    real_up, pred_up, count, total =evaluate.upDownfit(close,realData,predictData)
+    xAxis = prepare.getDateTime(stock_info).astype(str)
+    xAxis = xAxis.reshape(xAxis.shape[0]).tolist()
+    res={
+        "real_up" : real_up.reshape(real_up.shape[0]).tolist(),
+        "pred_up":pred_up.reshape(pred_up.shape[0]).tolist(),
+        "fit_count":count,
+        "total_count":total,
+        "xAxis": [n[2:] for n in xAxis]  # 舍去日期前两位
+    }
+    return  res
 
 @ app.route("/getStockInfo",methods=["POST"])
 def getStockInfo():

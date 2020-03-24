@@ -5,6 +5,10 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import  stock_sql
+from multiprocessing import cpu_count
+from concurrent.futures import ProcessPoolExecutor,as_completed
+import  datetime
+
 
 import  socket
 
@@ -82,6 +86,17 @@ def parseUntrainedData(symbol,df):
             df= df.iloc[:index+ SEQUENCE_LEN]
             break
     return df
+
+
+def getTrianColnum(stockinfo,length=RREDICT_LEN):
+    symbol = stockinfo["symbol"]
+    path = stock_sql.getFilePath(symbol)
+    df = stock_sql.getStockData(path)
+    # 对数据进行训了测试的分离处理
+    x, y = dataProcess(df)
+    col =["close"]
+    close = np.array(x[col])[-length:]
+    return  np.array( close)
 
 
 def getTrainData(stockInfo,only_untrain=False):
@@ -191,7 +206,7 @@ def columnSplit():
     :return:
     """
     all = list(daily.keys());
-    column_y=['close',"ts_code"]
+    column_y=["ts_code"]
     column_x = [x for x in all if x not in column_y]
     column_y = ['close']
 
@@ -247,14 +262,14 @@ def updateTrianRecord(stock_list):#480
     stock_sql. updateTrianList(up_list)
     print(up_list)
 
-def dataConcat(stock_list,only_untrain =False):
+def concatList(stock_list,only_untrain =False):
     """
     批量处理stock list 数据
     :param stock_list:  待处理的stock list 包含symbol name 信息
     :param only_untrain:  只处理未使用的数据
-    :return: data_X,data_Y
+    :return: list_x,list_x
     """
-    list_x ,list_y=[],[]
+    list_x, list_y = [], []
     for info in stock_list:
         data = getTrainData({"symbol": info[0]}, only_untrain)
         print("stock info :" + info + "\r\n")
@@ -262,9 +277,33 @@ def dataConcat(stock_list,only_untrain =False):
         list_x.append(data[0])
         list_y.append(data[2])
 
-    if len(list_x) ==  0 or len(list_y)==0:return  None
-    data_x,data_y = np.concatenate(list_x,axis=0),np.concatenate(list_y,axis=0)
-    return  data_x,data_y
+    if len(list_x) == 0 or len(list_y) == 0: return None
+    return list_x,list_y
+
+def dataConcatMultiple(stock_list,only_untrain=False):
+    list_x, list_y = [], []
+    split_list = np.array_split(stock_list,4,axis=0)
+    executor = ProcessPoolExecutor(max_workers=4)
+    # for i in  range(len(split_list)):
+    #     data = concatList(split_list[1])
+    #     print(data)
+    all_task = [executor.submit(concatList, list_a,only_untrain) for list_a in split_list]
+    for future in as_completed(all_task) :
+        res = future.result()
+        if res is not None:
+            list_x.extend(res[0])
+            list_y.extend(res[1])
+
+    data_x, data_y = np.concatenate(list_x, axis=0), np.concatenate(list_y, axis=0)
+    return data_x, data_y
+
+def dataConcat(stock_list,only_untrain =False):
+
+    res  =concatList(stock_list,only_untrain)
+    if res is  None:
+        return res
+    data_x,data_y = np.concatenate(res[0],axis=0),np.concatenate(res[1],axis=0)
+    return data_x,data_y
 
 def dataGenerator(index = 0,only_untrain=False,batch_size =200):
     """
@@ -281,7 +320,9 @@ def dataGenerator(index = 0,only_untrain=False,batch_size =200):
     batch_list =stock_sql.arr_split(stock_list,batch_size)
 
     for s_list in batch_list:
-        data =dataConcat(s_list,only_untrain)
+        #多进程
+        data=dataConcatMultiple(s_list,only_untrain)
+        #data =dataConcat(s_list,only_untrain)
         if data is None : continue
         yield  data[0],data[1],s_list
 

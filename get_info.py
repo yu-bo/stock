@@ -98,10 +98,10 @@ def dailyInfoUpdate():
     # df.sort_values(by=["symbol"], inplace=True, ignore_index=True)
     stock_list = np.array(df)
 
-    #多线程支持
+    #多进程支持
     # stock_split = stock_sql.arr_split( stock_list ,500)
     # executor = ProcessPoolExecutor(max_workers=8)
-    # all_task = [executor.submit(updateDailyList, (list_a)) for list_a in stock_split]
+    # all_task = [executor.submit(updateDailyList, list_a) for list_a in stock_split]
     # for future in as_completed(all_task) :
     #     res = future.result()
 

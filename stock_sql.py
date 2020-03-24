@@ -319,11 +319,9 @@ def columnsToSql(columns):
 
 
 def arr_split(arr,size):
-    s=[]
-    for i in range(0,int(len(arr))+1,size):
-        c=arr[i:i+size]
-        s.append(c)
+    s = [arr[i:i+size]  for i in range(0,int(len(arr))+1,size)]
     return s
+
 
 
 def DataBaseInit():

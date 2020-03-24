@@ -83,8 +83,9 @@ def trainningAll( only_untrain = True):
         pass
     for data in prepare.dataGenerator(0,only_untrain):# (train_data,stock_info)
         train_x,  train_y, stock_list =data
-        # history = model.fit(train_x, train_y, batch_size=1024, epochs=20, validation_split=0.05)
-        # model.save_weights(weight_file)
+        print(train_y)
+        history = model.fit(train_x, train_y, batch_size=1024, epochs=20, validation_split=0.05)
+        model.save_weights(weight_file)
         stock_sql. updateTrianList(stock_list)
 
 def testing( stockInfo ):

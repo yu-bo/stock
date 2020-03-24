@@ -19,6 +19,7 @@ def explained_variance_score(y_true,y_pred):
     :return:
     """
     socre =  metrics.explained_variance_score(y_true,y_pred)
+    socre = round(socre,4)
     return socre
 
 def mean_absolute_error(y_true,y_pred):
@@ -29,6 +30,7 @@ def mean_absolute_error(y_true,y_pred):
     :return:
     """
     socre = metrics.mean_absolute_error(y_true, y_pred)
+    socre = round(socre, 4)
     return socre
 
 def mean_squared_error(y_true,y_pred):
@@ -39,10 +41,12 @@ def mean_squared_error(y_true,y_pred):
     :return:
     """
     socre = metrics.mean_squared_error(y_true, y_pred)
+    socre = round(socre, 4)
     return socre
 
 def mean_squared_log_error(y_true,y_pred):
     socre = metrics.mean_squared_log_error(y_true, y_pred)
+    socre = round(socre, 4)
     return socre
 
 
@@ -56,6 +60,7 @@ def r2_socre(y_true,y_pred):
     :return:
     """
     socre = metrics.r2_score(y_true, y_pred)
+    socre = round(socre, 4)
     return socre
 
 def computeCorrelation(X, Y):
@@ -73,8 +78,20 @@ def computeCorrelation(X, Y):
 
     SST = math.sqrt(varX * varY)
     print("使用math库：r：", SSR / SST, "r-squared：", (SSR / SST) ** 2)
-    return
+    socre = round(SST, 4)
+    return socre
 
+def upDownfit(today, real_t,pred_t):
+    real_up ,pred_up= real_t -today ,pred_t -today
+    real_up,pred_up=np.round(real_up,decimals=2),np.round(pred_up,decimals=2)
+    same = np.multiply(real_up,pred_up)
+    count =0
+    for i in range(len(same)):
+        if same[i] > 0:
+            count += 1
+    print( count)
+    index =np.maximum(same,0)
+    return  real_up,pred_up,count,len(same)
 
 def evaluation():
     realData, predictData = trainning.testing({"symbol":"000001"})
