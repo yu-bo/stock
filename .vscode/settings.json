@@ -1,4 +1,6 @@
 {
     "python.pythonPath": "D:\\Miniconda3\\envs\\sabc\\python.exe",
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "terminal.integrated.shellArgs.windows": ["/K", "D:\\Anaconda3\\Scripts\\activate.bat D:\\Anaconda3"]
 
 }

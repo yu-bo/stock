@@ -63,6 +63,10 @@ def createRecordTable():
         c.execute(Sql_str)
 
 def createDateTable():
+    """
+    创建stock_date 数据表 用来记录daily  train等日期信息
+    :return:
+    """
     Sql_str = 'CREATE TABLE  IF NOT EXISTS stock_date (' \
               'symbol TEXT PRIMARY KEY, name TEXT, ts_code TEXT, ' \
               'list_date TEXT, trade_date TEXT, train_date TEXT)'
@@ -75,14 +79,14 @@ def saveStockData():
     将stock的基本信息存放再数据库
     :return:
     """
-    df = pd.read_csv("data/stock.csv", dtype=object)
+    df = pd.read_csv("data/stock_basic.csv", dtype=object)
     df.columns = list(d.keys())
     conn = sqlite3.connect(DataBase)
     df.to_sql(name="stock_info", con=conn, index=False, if_exists="replace")
     conn.close()
 
 
-def saveStockDate():
+def initDateTable():
     """
     生成 表用来记录 stock信息更新到哪一天， 模型对训练到哪一天
     :return:
@@ -120,15 +124,27 @@ def saveStockPath():
     df.to_sql(name="stock_path", con=conn, index=False, if_exists='replace')
     conn.close()
     print(df)
-    
-def updateTradeDate(symbol,date):
-    sqlStr = "UPDATE stock_date SET trade_date ='{}' WHERE symbol='{}'".format(date, symbol)
+
+def initTrainDate():
+    """
+    初始化 训练日期
+    :param symbol:
+    :param date:
+    :return:
+    """
+    sqlStr = "UPDATE stock_date SET train_date = list_date"
     with my_sql(DataBase) as c:
         c.execute(sqlStr)
+    print("initTrainDate")
 
-
-def updateTrainDate(symbol, date):
-    sqlStr = "UPDATE stock_date SET train_date ='{}' WHERE symbol='{}'".format(date, symbol)
+def updateTradeDate(symbol,date):
+    """
+    更新stock的 日期信息 记录日线更新到哪那一天
+    :param symbol: stock 代码
+    :param date:   交易日期
+    :return:
+    """
+    sqlStr = "UPDATE stock_date SET trade_date ='{}' WHERE symbol='{}'".format(date, symbol)
     with my_sql(DataBase) as c:
         c.execute(sqlStr)
 
@@ -213,7 +229,7 @@ def getTradeDateList():
     conn.close();
     return df
 
-def getStockList(headers = [ "symbol","name"]):
+def getStockFrame(headers = ["symbol","name"]):
     sqlStr = "SELECT {} FROM stock_info".format(columnsToSql(headers))
     conn = sqlite3.connect(DataBase)
     df = pd.read_sql(sqlStr, con=conn, columns=headers)
@@ -239,6 +255,14 @@ def getStockInfo(item):
         df.values[0][index] = name + ": " + value
     return df
 
+def getDailyFrame(symbol:str)->pd.DataFrame:
+    path = getFilePath(symbol)
+    df = getStockData(path)
+    # 2.将nan数据 替换为0
+    df.fillna(0, inplace=True)
+    # 3.按照日期排序 ,并忽略索引
+    df.sort_values(by=["trade_date"], ascending=True, ignore_index=True, inplace=True)
+    return df
 
 def getStockData(path):
     data = pd.read_csv(path, index_col=False, na_values=0)
@@ -247,10 +271,9 @@ def getStockData(path):
     return data
 
 
-def getRecordData(stockInfo):
-    if not stockInfo:
+def getRecordData(symbol):
+    if not symbol :
         return None
-    symbol = stockInfo["symbol"]
     now_date = datetime.now().strftime("%Y%m%d")
     sqlStr = "SELECT real_data, predict_data, symbol FROM stock_record" \
              " WHERE symbol='{}' AND time='{}'".format(symbol,now_date)
@@ -269,9 +292,13 @@ def SaveRecordData(stockInfo, realData, predictData):
     sqlStr = "REPLACE INTO stock_record (symbol,name,time,real_data, predict_data) VALUES (?,?,?,?,?) "
     with my_sql(DataBase) as c:
         c.execute(sqlStr, (stockInfo["symbol"], "", now_date, reald, pred))
-    print(now_date)
-
+    #print(now_date)
     pass
+
+def ClearRecordData():
+    sqlStr ="DROP TABLE stock_record"
+    with my_sql(DataBase) as c:
+        c.execute(sqlStr)
 
 
 def parseStockInfo(key, value):
@@ -312,11 +339,9 @@ def columnsToSql(columns):
 
 
 def arr_split(arr,size):
-    s=[]
-    for i in range(0,int(len(arr))+1,size):
-        c=arr[i:i+size]
-        s.append(c)
+    s = [arr[i:i+size]  for i in range(0,int(len(arr))+1,size)]
     return s
+
 
 
 def DataBaseInit():
@@ -335,5 +360,5 @@ if __name__ == '__main__':
     # DataBaseInit()
     # getStockList()
     # saveStockPath()
-    saveStockDate()
+    initTrainDate()
     #getFilePath("000001")
