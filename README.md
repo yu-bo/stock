@@ -14,7 +14,7 @@ QQ：840050001希望给出优化意见
 tushare地址：https://tushare.pro/register?reg=341048   
   
 工程介绍  
-1、get_info.py 用于从获取stock信息，目前只有日线数据，后面会增加（tushare积分不够，有些数据获取不到，大家注册下给点积分） 
+1、get_info.py 用于从获取stock信息，目前只有日线数据，后面会增加（tushare积分不够，有些数据获取不到，大家注册下给点积分）  
 2、stock_sql.py 用于将部分信息记录到数据库，方便查询检索。数据库使用的sqlite3  
 3、prepare.py 用于对数据进行处理，生成train_x，train_y的对应关系，满足网络训练需要。NN可以学习映射规律，进行预测。  
 4、trainning.py 网络模型，并进行训练。  
